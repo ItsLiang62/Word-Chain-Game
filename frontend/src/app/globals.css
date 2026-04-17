@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0e0e11;
+  --surface: #18181d;
+  --surface2: #22222a;
+  --border: #2e2e3a;
+  --accent: #c8f135;
+  --accent2: #6b5cf6;
+  --text: #f0f0f5;
+  --muted: #7a7a8c;
+  --agent-bubble: #22222a;
+  --player-bubble: #1d2b0f;
+  --danger: #ff4d4d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+}
+
+h1, h2, h3, nav, .display {
+  font-family: 'Syne', sans-serif;
+}
+
+.btn {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-accent {
+  background: var(--accent);
+  color: #0e0e11;
+}
+.btn-accent:hover { background: #d6ff45; transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+input.field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  width: 100%;
+  transition: border 0.15s;
+}
+input.field:focus { border-color: var(--accent); }
+input.field::placeholder { color: var(--muted); }

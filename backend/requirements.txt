@@ -1,0 +1,5 @@
+fastapi[standard]
+langgraph
+supabase
+groq
+python-dotenv
