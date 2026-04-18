@@ -1,4 +1,4 @@
-const BASE = "https://word-chain-game-2l6k.onrender.com";
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://word-chain-game-2l6k.onrender.com";
 
 export async function startGame(game_id: string, difficulty: string, username: string) {
   const res = await fetch(`${BASE}/start?game_id=${game_id}&difficulty=${difficulty}&username=${encodeURIComponent(username)}`, { method: "POST" });
