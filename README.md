@@ -64,3 +64,5 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 When this file is absent the frontend falls back to the production Render URL
 automatically. Do not commit `.env.local` to git.
+
+Double-invocation of displays (such as double display of a record in game history) may be due to enabled React Strict Mode. Consider disabling it if it's causing confusion. The display works as expected in production regardless.

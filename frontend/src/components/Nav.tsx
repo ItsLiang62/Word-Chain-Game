@@ -24,9 +24,11 @@ export default function Nav() {
       </div>
       <div className={styles.right}>
         <span className={styles.user}>{username}</span>
-        <button className="btn btn-ghost" onClick={logout} style={{ padding: "0.4rem 0.9rem", fontSize: "0.78rem" }}>
-          Log out
-        </button>
+        <span>
+          <button className="btn btn-ghost" onClick={logout} style={{ padding: "0.4rem 0.9rem", fontSize: "0.82rem" }}>
+            Log Out
+          </button>
+        </span>
       </div>
     </nav>
   );

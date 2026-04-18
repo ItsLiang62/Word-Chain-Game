@@ -138,9 +138,11 @@ export default function GamePage() {
               <span className={styles.stat}><span className={styles.label}>Score</span> {score}</span>
               <span className={styles.stat}><span className={styles.label}>Creativity Streak</span> {streak}</span>
               <span className={styles.statDiff}>{difficulty}</span>
-              <button className="btn btn-ghost" style={{ marginLeft: "auto" }} onClick={() => setShowRules(true)}>
-                Rules
-              </button>
+              <span>
+                <button className="btn btn-ghost" style={{ marginLeft: "auto" }} onClick={() => setShowRules(true)}>
+                  Rules
+                </button>
+              </span>
             </div>
 
             <div className={styles.chat}>
@@ -187,8 +189,8 @@ export default function GamePage() {
             {gameStatus === "completed" && (
               <div className={styles.endBanner}>
                 {won
-                  ? <p style={{color: "#66FF00", fontWeight: "bold"}}>YOU WIN! FINAL SCORE: <strong>{score}</strong></p>
-                  : <p style={{fontWeight: "bold" }}>YOU LOST! FINAL SCORE: <strong>{score}</strong></p>
+                  ? <p>YOU WIN! FINAL SCORE: <strong>{score}</strong></p>
+                  : <p>YOU LOST! FINAL SCORE: <strong>{score}</strong></p>
                 }
                 <button className="btn btn-accent" onClick={handleNewGame}>
                   New Game
