@@ -21,6 +21,10 @@ export default function GamePage() {
   const [round, setRound] = useState(0);
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [error, setError] = useState("");
+  const [won, setWon] = useState<boolean | null>(null);
+  const [prevStreak, setPrevStreak] = useState(0);
+  const [streakMessage, setStreakMessage] = useState("");
+  const [showRules, setShowRules] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +48,9 @@ export default function GamePage() {
     setRound(data.current_round);
     setScore(0);
     setStreak(0);
+    setWon(null);
+    setStreakMessage("");
+    setPrevStreak(0);
     setGameStatus("active");
     setLoading(false);
   }
@@ -55,24 +62,26 @@ export default function GamePage() {
     setLoading(true);
     setError("");
 
-    const lastWord = messages[messages.length - 1].word;
-    if (word[0] !== lastWord[lastWord.length - 1]) {
-      setError(`Word must start with "${lastWord[lastWord.length - 1].toUpperCase()}"`);
-      setLoading(false);
-      return;
-    }
-
     setMessages(m => [...m, { role: "player", word }]);
     const data = await submitWord(word, gameId);
 
     if (data.error) {
+      setMessages(m => m.slice(0, -1));
       setError(data.error);
       setLoading(false);
       return;
     }
 
-    // Only show agent word if game isn't over
+    const newStreak = data.cascade_streak ?? 0;
+    if (newStreak > prevStreak && newStreak > 0) {
+      setStreakMessage("Creative word!");
+    } else {
+      setStreakMessage("");
+    }
+    setPrevStreak(newStreak);
+
     if (data.game_status === "completed") {
+      setWon(data.current_round > 10);
       setGameStatus("completed");
     } else {
       setMessages(m => [...m, { role: "agent", word: data.agent_word }]);
@@ -84,10 +93,23 @@ export default function GamePage() {
     setLoading(false);
   }
 
+  function handleNewGame() {
+    setGameStatus("idle");
+    setMessages([]);
+    setWon(null);
+    setStreakMessage("");
+    setPrevStreak(0);
+    setError("");
+    setScore(0);
+    setStreak(0);
+    setRound(0);
+  }
+
   return (
     <div className={styles.layout}>
       <Nav />
       <div className={styles.container}>
+
         {gameStatus === "idle" && (
           <div className={styles.startPanel}>
             <h2 className={styles.heading}>New Game</h2>
@@ -104,7 +126,7 @@ export default function GamePage() {
               ))}
             </div>
             <button className="btn btn-accent" onClick={handleStart} disabled={loading} style={{ marginTop: "0.5rem" }}>
-              {loading ? "Starting…" : "Start Game →"}
+              {loading ? "Starting..." : "Start Game"}
             </button>
           </div>
         )}
@@ -116,6 +138,9 @@ export default function GamePage() {
               <span className={styles.stat}><span className={styles.label}>Score</span> {score}</span>
               <span className={styles.stat}><span className={styles.label}>Creativity Streak</span> {streak}</span>
               <span className={styles.statDiff}>{difficulty}</span>
+              <button className="btn btn-ghost" style={{ marginLeft: "auto" }} onClick={() => setShowRules(true)}>
+                Rules
+              </button>
             </div>
 
             <div className={styles.chat}>
@@ -130,7 +155,7 @@ export default function GamePage() {
               {loading && (
                 <div className={styles.agentRow}>
                   <span className={styles.avatar}>AI</span>
-                  <div className={styles.agentBubble}><span className={styles.dots}>···</span></div>
+                  <div className={styles.agentBubble}><span className={styles.dots}>...</span></div>
                 </div>
               )}
               <div ref={bottomRef} />
@@ -138,11 +163,15 @@ export default function GamePage() {
 
             {error && <p className={styles.error}>{error}</p>}
 
+            {streakMessage && (
+              <p style={{ textAlign: "center", color: "#66FF00" }}>{streakMessage}</p>
+            )}
+
             {gameStatus === "active" && (
               <div className={styles.inputRow}>
                 <input
                   className="field"
-                  placeholder={messages.length ? `Start with "${messages[messages.length - 1].word.slice(-1).toUpperCase()}"…` : "Your word…"}
+                  placeholder={messages.length ? `Start with "${messages[messages.length - 1].word.slice(-1).toUpperCase()}"...` : "Your word..."}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleSubmit()}
@@ -157,14 +186,47 @@ export default function GamePage() {
 
             {gameStatus === "completed" && (
               <div className={styles.endBanner}>
-                <p>Game over! Final score: <strong>{score}</strong></p>
-                <button className="btn btn-accent" onClick={() => { setGameStatus("idle"); setMessages([]); }}>
+                {won
+                  ? <p style={{color: "#66FF00", fontWeight: "bold"}}>YOU WIN! FINAL SCORE: <strong>{score}</strong></p>
+                  : <p style={{fontWeight: "bold" }}>YOU LOST! FINAL SCORE: <strong>{score}</strong></p>
+                }
+                <button className="btn btn-accent" onClick={handleNewGame}>
                   New Game
                 </button>
               </div>
             )}
           </>
         )}
+
+        {showRules && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 99 }}>
+            <div style={{ background: "var(--background)", padding: "2rem", borderRadius: "1rem", maxWidth: "420px", width: "90%" }}>
+              <h3 style={{ marginBottom: "1rem" }}>How to Play</h3>
+              <ul style={{ lineHeight: 2 }}>
+                <li>Each word must start with the last letter of the previous word</li>
+                <li>Words cannot be repeated</li>
+                <li>Words must be real English words</li>
+                <li>Survive all 10 rounds to win</li>
+              </ul>
+              <h3 style={{ margin: "1rem 0" }}>Difficulty AI Word Lengths</h3>
+              <ul style={{ lineHeight: 2 }}>
+                <li>Easy — 4 to 6 letters</li>
+                <li>Medium — 6 to 8 letters</li>
+                <li>Hard — 8 to 12 letters, no words ending in S</li>
+              </ul>
+              <h3 style={{ margin: "1rem 0" }}>Scoring</h3>
+              <ul style={{ lineHeight: 2 }}>
+                <li>Each valid word scores 10 points</li>
+                <li>Creative words get +5 bonus</li>
+                <li>Chain 3 or more creative words for a score multiplier and length bonus</li>
+              </ul>
+              <button className="btn btn-accent" style={{ marginTop: "1rem" }} onClick={() => setShowRules(false)}>
+                Got it
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

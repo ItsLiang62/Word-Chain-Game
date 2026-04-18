@@ -1,32 +1,20 @@
 import re
 import os
 import time
+import groq
+import logging
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from groq import Groq
 from groq.types.chat import ChatCompletionUserMessageParam
 from dotenv import load_dotenv
-from threading import Semaphore
 
 load_dotenv()
 memory = MemorySaver()
 client = Groq(api_key=os.environ["GROQ_API_KEY"])
-
-last_call = 0
-last_call_lock = Semaphore(1)
-interval = 2
-call_agent_semaphore = Semaphore(5)
-
-def rate_limit():
-    global last_call
-    with last_call_lock:
-        elapsed = time.time() - last_call
-        if interval > elapsed:
-            time.sleep(interval - elapsed)
-        last_call = time.time()
+logger = logging.getLogger(__name__)
 
 def generate(user_content):
-    rate_limit()
 
     messages: list[ChatCompletionUserMessageParam] = [
         {
@@ -35,17 +23,26 @@ def generate(user_content):
         }
     ]
 
-    with call_agent_semaphore:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=messages,
-            temperature=0.9,
-            top_p=0.9
-        )
+    while True:
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=messages,
+                temperature=0.9,
+                top_p=0.9
+            )
 
-    match = re.search(r'[a-zA-Z]+', response.choices[0].message.content)
-    word = match.group(0) if match else ""
-    return word.lower().strip()
+            match = re.search(r'[a-zA-Z]+', response.choices[0].message.content)
+            word = match.group(0) if match else ""
+            return word.lower().strip()
+        except groq.RateLimitError as e:
+            match = re.search(r'try again in (\d+)s', str(e))
+            wait = int(match.group(1)) + 1 if match else 5
+            logger.warning(f"Rate limit hit, waiting {wait} seconds...")
+            time.sleep(wait)
+        except Exception as e:
+            logger.error(f"Groq error: {e}")
+            time.sleep(3)
 
 def valid_word(state, agent_word=False):
     word = state["used_words"][-1]
