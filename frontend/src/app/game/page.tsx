@@ -112,9 +112,9 @@ export default function GamePage() {
         {gameStatus !== "idle" && (
           <>
             <div className={styles.statsBar}>
-              <span className={styles.stat}><span className={styles.label}>Round</span> {round}</span>
+              <span className={styles.stat}><span className={styles.label}>Round</span> {Math.min(round, 10)}</span>
               <span className={styles.stat}><span className={styles.label}>Score</span> {score}</span>
-              <span className={styles.stat}><span className={styles.label}>Streak</span> 🔥{streak}</span>
+              <span className={styles.stat}><span className={styles.label}>Creativity Streak</span> {streak}</span>
               <span className={styles.statDiff}>{difficulty}</span>
             </div>
 
