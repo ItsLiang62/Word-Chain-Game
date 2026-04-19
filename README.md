@@ -27,7 +27,7 @@ Create the following tables in your Supabase project:
 - difficulty (text)
 - final_score (int)
 - rounds_completed (int)
-- outcome (bool)
+- outcome (bool, default (rounds_completed = 10))
 - timestamp (timestamptz, default now())
 
 **Player Stats**
@@ -38,6 +38,10 @@ Create the following tables in your Supabase project:
 - total_wins (int)
 - wins_by_difficulty (jsonb)
 - current_streak (int)
+
+For both the Games and Player Stats tables, either disable RLS entirely or create a 
+policy set to ALL with both USING and WITH CHECK expressions set to true. This allows 
+the anon key used in the backend to read and write without restriction.
 
 ## Running Locally
 
@@ -58,11 +62,14 @@ npm run dev
 Frontend runs on http://localhost:3000
 Backend runs on http://localhost:8000
 
-By default the frontend points to the deployed Render backend at https://word-chain-game-kappa.vercel.app/game. To use your local backend instead, create a `.env.local` file in the frontend directory:
+By default the frontend points to the deployed Render backend. To use your local backend instead, create a `.env.local` file in the frontend directory:
 
 NEXT_PUBLIC_API_URL=http://localhost:8000
 
-When this file is absent the frontend falls back to the production Render URL
-automatically. Do not commit `.env.local` to git.
+When this file is absent the frontend falls back to the deployed Render backend automatically. Do not commit `.env.local` to git.
 
-Double-invocation of displays (such as double display of a record in game history) may be due to enabled React Strict Mode. Consider disabling it if it's causing confusion. The display works as expected in production regardless.
+Double-invocation of displays (such as double display of a record in game history) may be due to enabled React Strict Mode. Consider disabling it if causing confusion. The display works as expected in production regardless.
+
+## Running Remotely
+
+Visit https://word-chain-game-kappa.vercel.app. The deployed Vercel frontend must point to the deployed Render backend, and fails if `.env.local` is present due to conflict with Render production settings.
