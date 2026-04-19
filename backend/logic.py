@@ -168,10 +168,10 @@ def update_score(state):
 
     if output == "uncommon":
         score += 5
-        if cascade_streak >= 2:
+        cascade_streak += 1
+        if cascade_streak >= 3:
             score *= 2
             score += max(len(word) - 5, 0)
-        cascade_streak += 1
     else:
         cascade_streak = 0
 

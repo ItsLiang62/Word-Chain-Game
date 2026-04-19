@@ -20,7 +20,7 @@ ChainSession is a TypedDict that acts as the single source of truth for a game. 
 
 - `game_id` — unique identifier, used as the LangGraph thread_id so each game has isolated state
 - `username` — links the session to a player for stat tracking
-- `difficulty` — determines word length constraints for both the agent and validation
+- `difficulty` — determines word length and complexity constraints for the agent
 - `current_round` — incremented at the start of each round, used to detect game completion
 - `used_words` — append-only list of all words played, used for duplicate detection and last-letter chaining
 - `last_letter` — derived from the last accepted word, passed as constraint to the next word generator
@@ -37,10 +37,10 @@ Base score per round is 10 points.
 
 If the player's word is judged "uncommon" by the LLM:
 - +5 bonus points
-- If cascade_streak >= 2 (two or more consecutive uncommon words):
+- cascade_streak increments
+- If cascade_streak >= 3 (three or more consecutive uncommon words):
   - Score is doubled
   - +1 point per letter beyond 5 (rewards longer uncommon words)
-- cascade_streak increments
 
 If the word is "common", cascade_streak resets to 0.
 
