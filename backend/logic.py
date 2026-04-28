@@ -89,7 +89,7 @@ def get_agent_word(state):
 
     difficulty = state["difficulty"]
 
-    if state["last_letter"] == "":
+    if not state["last_letter"]:
         system_content = f"""
         You are generating a word.
         Respond with ONLY one random {word_notes[difficulty]} word that contains {letter_count[difficulty]} letters."

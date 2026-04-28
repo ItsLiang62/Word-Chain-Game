@@ -83,7 +83,7 @@ def game_info(game_id):
 
 @app.post("/game_history")
 def game_history(username: str):
-    return StreamingResponse(gen_completed_session(username), media_type="text/event-stream")
+    return StreamingResponse(gen_completed_session(username), media_type="application/x-ndjson")
 
 @app.post("/player_stats")
 def game_stats(username: str):
